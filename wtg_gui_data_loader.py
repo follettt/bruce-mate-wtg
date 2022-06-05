@@ -3,31 +3,62 @@
 
 @author: follettt
 """
+from pandas import read_csv
+from streamlit import experimental_memo
 ## Constants
-LOCALDIR = 'C:\Database\WTG'
-# USER = ''  Secrets file
+
+# USER = '' --->>> Look into Secrets file
 BOXDIR = 'C:\\Users\\follettt\\Box\\WHET_LAB\\data\\MMIData Server\\Database'
-#PROJECTS = '\\'.join([LOCALDIR, 'wtg_project_list.csv'])
-PROJECTS = '\\'.join([BOXDIR, 'wtg_project_list.csv'])
-SEL_DATA = 'C:\\Database\\WTG\\wtg_project_list.csv'
+LOCALDIR = 'C:\Database\WTG'
+
+
 ISO_DATA = 'C:\\Database\\WTG\\test_isotope.csv'
 LOC_DATA = 'C:\\Database\\WTG\\encounter.csv'
 
 
-class encounter(object):
-    encounter = ''
-    enc_argos = ''
-    enc_biopsy = ''
-    enc_deploy = ''
-    enc_fastloc = ''
-    enc_photo = ''
+def load_projects(): 
+    filter_data = read_csv('\\'.join([BOXDIR, 'wtg_project_list.csv']))
+    return filter_data
 
-class metadata(object):
-    animal_meta = ''
-    tag_meta = ''
+def load_meas(choice):
+    tag_data =  read_csv('\\'.join([BOXDIR, choice]))
+    return tag_data    
+
+def load_animal(choice):
+    animal_data = read_csv('\\'.join([BOXDIR, choice]))
+    return animal_data
+
+@experimental_memo
+def load_iso():
+    iso_data = read_csv(ISO_DATA)
+    return iso_data   
+
+@experimental_memo
+def load_locs(choice):   
+    #===>> Add a callback to prevent reloading every time?
+    #===>> Add a timer 
+    loc_data = read_csv(choice)
+    return loc_data
+
+
+# pointers to data sources
+class encounter(object):
+    encounter = 'encounter.csv'
+    enc_argos = 'enc_data_argos'
+    enc_biopsy = 'enc_data_biopsy'
+    enc_deploy = 'enc_data_deploy'
+    enc_fastloc = 'enc_data_fastloc'
+    #enc_photo = ''
+
+class animal_data(object):
+    animal_meta = 'animal_data.csv'
+    animal_iso = 'test_isotope.csv'
+    ## +++++>>>>>> animal_hormone = ''
 
 class tag_data(object):
+    tag_meta = 'tag_data_device.csv'
     tel_beh = 'tag_data_tel_behavior.csv'
+    tel_count = 'tag_data_tel_counter.csv'
     tel_stat = 'tag_data_tel_status.csv'
     wc_beh = 'tag_data_wc_behavior.csv'
     wc_stat = 'tag_data_wc_status.csv'
@@ -40,12 +71,12 @@ class tag_data(object):
     wc_hist_tat26 = 'tag_data_wc_histo_TAT_06_26C.csv'
     wc_hist_tat30 = 'tag_data_wc_histo_TAT_10_30C.csv'
     
-
-## SelectBox Dicts / Lists
+# Lists, dicts of filter choices
 class select_box(object):
     species = ['Blue',
                'Bowhead',
                'Bryde',
+               'Fin',
                'Gray',
                'HybridBF',
                'Humpback',
@@ -65,9 +96,11 @@ class select_box(object):
     
     tag_types =  {'Location Only':'LO',
                   'Dive Summary':'DS',
-                  'Dive Measurement': 'DM',
-                  'Adv. Dive Behavior':'ADB'}
+                  'Dive Measurement': 'DM', # Dive Duration DD absorbed into DM
+                  'Advanced Dive Behavior':'ADB'}
     
-    
-    
+    # "For the six hour period, " 
+    histo_types = ['Percent of Time in Depth or Temperature bins',
+                   'Number of dives in Depth bins',
+                   'Number of dives in Duration bins']
     
