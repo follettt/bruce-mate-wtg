@@ -11,19 +11,12 @@ Header
 
 import streamlit as st 
 import pandas as pd 
-#import numpy as np 
-# import psycopg2 as pg
 from datetime import datetime as dt
-#import plotly.express as px
+import plotly.express as px
 import wtg_gui_data_loader as dl
 
 st.set_page_config(page_title="WTG Data Archive", page_icon=None, layout="wide",
                    initial_sidebar_state="expanded", menu_items=None)
-
-@st.experimental_memo
-def load_locs():
-    loc_data = st.read_csv(dl.LOC_DATA)
-    return loc_data
 
 def show_data(in_df):
     hide_index = """
@@ -39,7 +32,6 @@ def show_data(in_df):
 
 ## Initial data for sidebar filters
 df_proj = dl.load_projects()
-## Still sorted by species!!
 
 with st.sidebar: # -- Select initial project list
     st.title('WTG Telemetry Data Archive')
@@ -48,7 +40,7 @@ with st.sidebar: # -- Select initial project list
     species_selected = st.multiselect('Species',dl.select_box.species)
 #### Trap for a selection ####
 
-## ===>>> Persist Projects even when species changes
+## ===>>> Persist Projects even when species changes?
     if len(species_selected) > 0:
        ## copy filtered source df to a new df to populate next filter (years)
        # new df      source (            filter on source                )
@@ -89,103 +81,107 @@ with st.sidebar: # -- Select initial project list
 col1, col2, col3, col4 = st.columns(4)
 
 ## --------------Select choice for next level---------------------
-explore = col1.radio('Browse:', ['Animals','Encounters','Tags'])
+explore = col1.radio('Browse:', ['Animals', 'Encounters', 'Tags'])
 
-## Locations
+#### LOCATIONS ######
 if explore == 'Encounters':
-    df_loc = dl.load_locs()
-    location_sel = col2.multiselect('Location Categories', dl.select_box.loc_types.keys())
-    col2.caption('Choosing multiple types will display geodata only. \
+    df_animals = dl.load_data(dl.animal_data.animal_meta) 
+    if species_selected:
+        anim_list = df_animals['animal_name'][(df_animals['project_id'].isin(projects_selected)) & \
+                                              (df_animals['species'].isin(species_selected))]
+    else:
+        anim_list = df_animals['animal_name'][(df_animals['project_id'].isin(projects_selected))]
+    anim_select = col2.multiselect('Choose animals', anim_list)    
+    location_sel = col3.multiselect('Location Categories', dl.select_box.loc_types.keys())
+    col3.caption('Choosing multiple types will display geodata only. \
                  Choose a single type to see all of its metadata.')
-    map_btn = col2.button('Show Map')
+
+    display = col4.radio('Show Table', 'Show Map')
 
     if location_sel:
-        # ALSO: filter by Animal first     ==>> LOAD animal data
-       
-        # properly format dates                
-        df_loc['timevalue'] = pd.to_datetime(df_loc['timevalue']).dt.strftime('%m-%d-%Y %H:%M:%S')
-        #df_loc.set_index('feature_id') # ===>>>Trying to omit feature_id from panel
-        #animals_selected = st.multiselect('Individuals')
-
         if len(location_sel) == 1:
-            if location_sel == 'Argos':
-                ## assemble filter from selections
-    #            loc_filter = (df_loc['project_id'].isin(projects_selected)) & \
-    #                      (df_loc['species'].isin(species_selected)) & \
-    #                      (df_loc['feature_type'].isin([dl.select_box.loc_types[k] & \
-    #                        for k in location_sel]))
-    #            show_data(df_loc[(loc_filter)])
-                pass
-            elif location_sel == 'FastLoc':
-                pass            
-            elif location_sel == 'Deployment':
-                pass            
-            elif location_sel == 'Biopsy':
-                pass            
-            elif location_sel == 'Photo-ID':
-                pass        
+            if location_sel[0] == 'Argos':
+                df_loc = dl.load_locs(dl.encounter.enc_argos)
+            elif location_sel[0] == 'FastLoc':
+                df_loc = dl.load_locs(dl.encounter.enc_fastloc)
+            elif location_sel[0] == 'Deployment':
+                df_loc = dl.load_locs(dl.encounter.enc_deploy)
+            elif location_sel[0] == 'Biopsy':
+                df_loc = dl.load_locs(dl.encounter.enc_biopsy)   
+##            elif location_sel == 'Photo-ID':
+            if anim_select:
+                loc_filter = (df_loc['animal_name'].isin(anim_select))
+            else:
+                loc_filter = (df_loc['animal_name'].isin(anim_list))
         elif len(location_sel) > 1:
-            loc_filter = (df_loc['project_id'].isin(projects_selected)) & \
-                      (df_loc['species'].isin(species_selected)) & \
-                      (df_loc['feature_type'].isin([dl.select_box.loc_types[k] for k in location_sel]))
-            show_data(df_loc[(loc_filter)])
-
-    ## Build mapping *******************
-        if map_btn:
-            # display a map in col2
-            # call from map_loader
+            df_loc = dl.load_locs(dl.encounter.encounter)
+            if anim_select:
+                loc_filter =  loc_filter = (df_loc['animal_name'].isin(anim_select)) & \
+                        (df_loc['feature_type'].isin([dl.select_box.loc_types[k] for k in location_sel]))
+            else:
+                loc_filter =  loc_filter = (df_loc['animal_name'].isin(anim_list)) & \
+                        (df_loc['feature_type'].isin([dl.select_box.loc_types[k] for k in location_sel]))
+            ## df_loc.set_index('feature_id') # ===>>>Try to omit feature_id from panel
+        slot1 = st.empty()
+        with slot1.container():
+            if display == 'Show Table':
+                show_data(df_loc[(loc_filter)])
+            elif display == 'Show Map':
+                map_fig = px.scatter_geo(df_loc[(loc_filter)])
+                    #df_loc['longitude', 'latitude', 'animal_name'] 
+                map_fig.show()            
+    
             # maximize button
-            #loc_map = px.line_geo()
-            pass
+ 
 
-## >>> what about re-tagged animals? in table for each tag??
+#### ANIMALS ####
 elif explore == 'Animals': 
+    df_animals = dl.load_data(dl.animal_data.animal_meta) 
+    anim_filter = (df_animals['project_id'].isin(projects_selected)) & \
+                  (df_animals['species'].isin(species_selected))
+
     ## Choose data Category
-    category = col2.radio('Choose:', ['Animal Metadata', 'Sample Biomarkers', 'Samples Collected', 'Tags Deployed'])
+    category = col2.radio('Choose:', ['Animal Metadata', 'Sample Biomarkers'])
 
     if category == 'Animal Metadata': 
-        # ===>NEED list of animals from project instead of init_proj
-        # csv has "Hump" "Bow" etc.
-        df_animal_data = dl.load_animal(dl.animal_data.animal_meta) 
         if species_selected:
-            data_filter = (df_animal_data['init_project'].isin(projects_selected)) & \
-                          (df_animal_data['species_name'].isin(species_selected))
+            anim_filter = (df_animals['project_id'].isin(projects_selected)) & \
+                          (df_animals['species'].isin(species_selected))
         else:
-            data_filter = (df_animal_data['init_project'].isin(projects_selected)) 
-        show_data(df_animal_data[(data_filter)])
+            anim_filter = (df_animals['project_id'].isin(projects_selected))
+        show_data(df_animals[(anim_filter)])
 
     if category == 'Sample Biomarkers':
         biomarkers_sel = col3.selectbox('Biomarker Types',  dl.select_box.bio_types)
         if len(biomarkers_sel) > 0: 
-            df_iso = dl.load_iso()   
+            df_iso = dl.load_data(dl.animal_data.animal_iso) 
             bio_filter = (df_iso['project_id'].isin(projects_selected)) & \
                           (df_iso['species'].isin(species_selected)) 
             show_data(df_iso[(bio_filter)])
 
-    elif category == 'Samples Collected':
-        pass
-
-    elif category == 'Tags Deployed':
-        pass
-
+#### TAGS #######
 elif explore == 'Tags':         # show tags with metadata by default
     dtype = col2.radio('Choose: ', ['Tag Metadata','Tag Measurement Data'])
     # display tags from selected projects
-    df_devices = dl.load_meas(dl.tag_data.tag_meta) 
+    df_devices = dl.load_data(dl.tag_data.tag_meta) 
     dev_filter = (df_devices['project_id'].isin(projects_selected)) & \
                  (df_devices['species_name'].isin(species_selected))
     slot1 = st.empty()
     with slot1.container():
         show_data(df_devices[(dev_filter)])
+
     if dtype == 'Tag Metadata': 
         # another selectbox for addl sched and hware
-        pass
-      
+        tagtype = col3.multiselect('Tag Types:',  dl.select_box.tag_types.keys())
+        if tagtype == 'Dive Summary':
+           pass
+    
+## Measurements          
     elif dtype == 'Tag Measurement Data':
         # hide device list
         slot1.empty()
         tagtype = col3.radio('Choose Tag Type:',  dl.select_box.tag_types.keys())
-    ## DiveSum tags
+ ## DiveSum s
         if tagtype == 'Dive Summary':
             col3.caption('Wildlife Computers SPOT Tags') 
             tag_list = df_devices['tag_name'][(df_devices['tag_class'] == 'DiveSum') & \
@@ -194,11 +190,11 @@ elif explore == 'Tags':         # show tags with metadata by default
             report = col4.radio('Report:', ['Behavior Histogram', 'Tag Status'])
             if report == 'Behavior Histogram':
                 if 'Sperm' in species_selected:
-                     df_tag_data = dl.load_meas(dl.tag_data.wc_hist_tat30) 
+                     df_tag_data = dl.load_data(dl.tag_data.wc_hist_tat30) 
                 else:
-                     df_tag_data = dl.load_meas(dl.tag_data.wc_hist_tat26) 
+                     df_tag_data = dl.load_data(dl.tag_data.wc_hist_tat26) 
             elif report == 'Tag Status':
-                df_tag_data = dl.load_meas(dl.tag_data.wc_stat)
+                df_tag_data = dl.load_data(dl.tag_data.wc_stat)
             data_filter = (df_tag_data['tag_name'].isin(tag_list))  #(df_tag_data['project_id'].isin(projects_selected))  
             with slot1.container():
                 show_data(df_tag_data[(data_filter)])
@@ -211,9 +207,9 @@ elif explore == 'Tags':         # show tags with metadata by default
          ## Report type
             report = col4.radio('Report:', ['Dive Behavior', 'Tag Status'])
             if report == 'Dive Behavior':
-                df_tag_data = dl.load_meas(dl.tag_data.tel_beh) 
+                df_tag_data = dl.load_data(dl.tag_data.tel_beh) 
             elif report == 'Tag Status':
-                df_tag_data = dl.load_meas(dl.tag_data.tel_stat)
+                df_tag_data = dl.load_data(dl.tag_data.tel_stat)
             data_filter = (df_tag_data['tag_name'].isin(tag_list)) 
             with slot1.container():
                 show_data(df_tag_data[(data_filter)])
@@ -229,23 +225,29 @@ elif explore == 'Tags':         # show tags with metadata by default
                 ## choose report TAT/D, DDEP, DDUR OR  
                 histo_type = col4.radio('Choose one:', dl.select_box.histo_types)
                 if 'Sperm' in species_selected:
+                    if projects_selected == ['2011GoM']:
+                        pass
+#                    tag_data_wc_histo_TAD_20_1400m.csv
+#                    tag_data_wc_histo_count_depth_20_1400m.csv
+#                    tag_data_wc_histo_count_duration_15_60min.csv
+
                     if histo_type == dl.select_box.histo_types[0]: # TAT/TAD
-                        df_tag_data = dl.load_meas(dl.tag_data.wc_hist_tad1400) 
+                        df_tag_data = dl.load_data(dl.tag_data.wc_hist_tad1400) 
                     elif histo_type == dl.select_box.histo_types[1]: # DDEP
-                        df_tag_data = dl.load_meas(dl.tag_data.wc_hist_dep1400)
+                        df_tag_data = dl.load_data(dl.tag_data.wc_hist_dep1400)
                     elif histo_type == dl.select_box.histo_types[2]: # DDUR
-                        df_tag_data = dl.load_meas(dl.tag_data.wc_hist_dur60)   
+                        df_tag_data = dl.load_data(dl.tag_data.wc_hist_dur60)   
                 else:
                     if histo_type == dl.select_box.histo_types[0]: # TAT/TAD
-                        df_tag_data = dl.load_meas(dl.tag_data.wc_hist_tad400) 
+                        df_tag_data = dl.load_data(dl.tag_data.wc_hist_tad400) 
                     elif histo_type == dl.select_box.histo_types[1]: # DDEP
-                        df_tag_data = dl.load_meas(dl.tag_data.wc_hist_dep400)
+                        df_tag_data = dl.load_data(dl.tag_data.wc_hist_dep400)
                     elif histo_type == dl.select_box.histo_types[2]: # DDUR
-                        df_tag_data = dl.load_meas(dl.tag_data.wc_hist_dur20)                      
+                        df_tag_data = dl.load_data(dl.tag_data.wc_hist_dur20)                      
             elif report == 'Dive Behavior':
-                df_tag_data = dl.load_meas(dl.tag_data.wc_beh) 
+                df_tag_data = dl.load_data(dl.tag_data.wc_beh) 
             elif report == 'Tag Status':
-                df_tag_data = dl.load_meas(dl.tag_data.wc_stat)    
+                df_tag_data = dl.load_data(dl.tag_data.wc_stat)    
             
             data_filter = (df_tag_data['tag_name'].isin(tag_list)) 
             with slot1.container():
@@ -253,7 +255,7 @@ elif explore == 'Tags':         # show tags with metadata by default
  ## Location
         elif tagtype == 'Location Only': 
             col3.caption('Telonics "ST" class Tags') 
-            df_tag_data = dl.load_meas(dl.tag_data.tel_count) 
+            df_tag_data = dl.load_data(dl.tag_data.tel_count) 
             data_filter = (df_tag_data['project_id'].isin(projects_selected))
             st.caption(' Parameters = CNOS: Cumulative Number Of Surfacings, \
                         CNOT: Cumulative Number Of Transmissions or  \

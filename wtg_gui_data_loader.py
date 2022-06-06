@@ -15,43 +15,35 @@ LOCALDIR = 'C:\Database\WTG'
 ISO_DATA = 'C:\\Database\\WTG\\test_isotope.csv'
 LOC_DATA = 'C:\\Database\\WTG\\encounter.csv'
 
+## ===>>> Only need one function
 
 def load_projects(): 
     filter_data = read_csv('\\'.join([BOXDIR, 'wtg_project_list.csv']))
     return filter_data
 
-def load_meas(choice):
-    tag_data =  read_csv('\\'.join([BOXDIR, choice]))
-    return tag_data    
-
-def load_animal(choice):
-    animal_data = read_csv('\\'.join([BOXDIR, choice]))
-    return animal_data
-
 @experimental_memo
-def load_iso():
-    iso_data = read_csv(ISO_DATA)
-    return iso_data   
+def load_data(choice):
+    csv_data =  read_csv('\\'.join([BOXDIR, choice]))
+    return csv_data    
 
 @experimental_memo
 def load_locs(choice):   
-    #===>> Add a callback to prevent reloading every time?
-    #===>> Add a timer 
-    loc_data = read_csv(choice)
+    #===>> Add a callback to prevent reloading every time?#===>> Add a timer
+    loc_data = read_csv('\\'.join([BOXDIR, choice]))
     return loc_data
 
 
 # pointers to data sources
 class encounter(object):
     encounter = 'encounter.csv'
-    enc_argos = 'enc_data_argos'
-    enc_biopsy = 'enc_data_biopsy'
-    enc_deploy = 'enc_data_deploy'
-    enc_fastloc = 'enc_data_fastloc'
+    enc_argos = 'enc_argos.csv'
+    enc_biopsy = 'enc_biopsy.csv'
+    enc_deploy = 'enc_deploy.csv'
+    enc_fastloc = 'enc_fastloc.csv'
     #enc_photo = ''
 
 class animal_data(object):
-    animal_meta = 'animal_data.csv'
+    animal_meta = 'proj_animal.csv'
     animal_iso = 'test_isotope.csv'
     ## +++++>>>>>> animal_hormone = ''
 
@@ -87,8 +79,8 @@ class select_box(object):
     loc_types = {'Argos':'argos', 
                  'FastLoc':'fastloc',
                  'Deployment':'deploy',
-                 'Biopsy':'biopsy',
-                 'Photo-ID':'photo'}
+                 'Biopsy':'sample'}
+##                 'Photo-ID':'photo'}
     
     bio_types = ['Hormones',
                  'Stable Isotopes',
