@@ -1,21 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-
+wtg_gui_functions
 @author: follettt
 """
 from pandas import read_csv
 from streamlit import experimental_memo
-## Constants
 
-# USER = '' --->>> Look into Secrets file
+## Constants
+# USER = '' --->>> from usr input <<====== 
 BOXDIR = 'C:\\Users\\follettt\\Box\\WHET_LAB\\data\\MMIData Server\\Database'
 LOCALDIR = 'C:\Database\WTG'
-
-
-ISO_DATA = 'C:\\Database\\WTG\\test_isotope.csv'
-LOC_DATA = 'C:\\Database\\WTG\\encounter.csv'
-
-## ===>>> Only need one function
 
 def load_projects(): 
     filter_data = read_csv('\\'.join([BOXDIR, 'wtg_project_list.csv']))
@@ -23,6 +17,7 @@ def load_projects():
 
 @experimental_memo
 def load_data(choice):
+    ## ====>>>> ALSO pass in usr  
     csv_data =  read_csv('\\'.join([BOXDIR, choice]))
     return csv_data    
 
@@ -33,6 +28,7 @@ def load_locs(choice):
     return loc_data
 
 
+## Create lib = wtg_gui_sources.py ###
 # pointers to data sources
 class encounter(object):
     encounter = 'encounter.csv'
@@ -44,8 +40,9 @@ class encounter(object):
 
 class animal_data(object):
     animal_meta = 'proj_animal.csv'
-    animal_iso = 'test_isotope.csv'
-    ## +++++>>>>>> animal_hormone = ''
+    animal_isotope = 'animal_isotope.csv'
+    animal_hormone = 'animal_hormone.csv'
+    animal_genes = 'animal_genes.csv'
 
 class tag_data(object):
     tag_meta = 'tag_data_device.csv'
@@ -62,7 +59,9 @@ class tag_data(object):
     wc_hist_tad400 = 'tag_data_wc_histo_TAD_25_400m.csv'
     wc_hist_tat26 = 'tag_data_wc_histo_TAT_06_26C.csv'
     wc_hist_tat30 = 'tag_data_wc_histo_TAT_10_30C.csv'
+   
     
+## Create lib wtg_gui_constants.py    ####
 # Lists, dicts of filter choices
 class select_box(object):
     species = ['Blue',
@@ -82,15 +81,15 @@ class select_box(object):
                  'Biopsy':'sample'}
 ##                 'Photo-ID':'photo'}
     
-    bio_types = ['Hormones',
-                 'Stable Isotopes',
-                 'What else?']
+    bio_types = ['Stable Isotopes',
+                 'Hormones',
+                 'Genotype']
     
-    tag_types =  {'Location Only':'LO',
+    tag_types =  {'Dive Monitoring': 'DM', 
+                  'Advanced Dive Behavior':'ADB',
                   'Dive Summary':'DS',
-                  'Dive Measurement': 'DM', # Dive Duration DD absorbed into DM
-                  'Advanced Dive Behavior':'ADB'}
-    
+                  'Location Only':'LO'}
+    # Dive Duration DD absorbed into DM
     # "For the six hour period, " 
     histo_types = ['Percent of Time in Depth or Temperature bins',
                    'Number of dives in Depth bins',
