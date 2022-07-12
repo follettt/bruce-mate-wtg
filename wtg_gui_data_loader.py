@@ -11,6 +11,13 @@ from streamlit import experimental_memo
 BOXDIR = 'C:\\Users\\follettt\\Box\\WHET_LAB\\data\\MMIData Server\\Database'
 LOCALDIR = 'C:\Database\WTG'
 
+  # Assign string to variable name
+  # local_vars = locals()
+    # for key in w_dict:
+    #     tuplet =w_dict[key]
+    #     local_vars.__setitem__(key)
+    #     local_vars[-1] = st.multiselect(tuplet[0], tuplet[1])
+
 def load_projects(): 
     filter_data = read_csv('\\'.join([BOXDIR, 'wtg_project_list.csv']))
     return filter_data
@@ -32,7 +39,7 @@ def load_locs(choice):
 # pointers to data sources
 class encounter(object):
     encounter = 'encounter.csv'
-    enc_argos = 'enc_argos.csv'
+    enc_argos = 'enc_argos_filtered.csv'  ##'enc_argos.csv'
     enc_biopsy = 'enc_biopsy.csv'
     enc_deploy = 'enc_deploy.csv'
     enc_fastloc = 'enc_fastloc.csv'
@@ -42,7 +49,7 @@ class animal_data(object):
     animal_meta = 'proj_animal.csv'
     animal_isotope = 'animal_isotope.csv'
     animal_hormone = 'animal_hormone.csv'
-    animal_genes = 'animal_genes.csv'
+    animal_genes = 'animal_genetic.csv'
 
 class tag_data(object):
     tag_meta = 'tag_data_device.csv'

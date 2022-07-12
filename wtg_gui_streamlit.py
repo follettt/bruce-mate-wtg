@@ -3,6 +3,8 @@
 Header
 """
 # =============================================================================
+# Canyouget2that?
+
 # secrets management for user name
 # Clear main pane unless selections made
 # Query definitions and sorting
@@ -24,7 +26,7 @@ import wtg_gui_data_loader as dl
 # import wtg_gui_contstants as wgc
 
 ## NEW COLORS 
-st.set_page_config(page_title="WTG Data Archive", page_icon=None, layout="wide",
+st.set_page_config(page_title="Whale Telemetry Data Archive Online System", page_icon=None, layout="wide",
                    initial_sidebar_state="expanded", menu_items=None)
 
 def show_data(in_df):
@@ -57,66 +59,98 @@ df_proj = dl.load_projects()
 with st.sidebar:
 #    usr = st.text_input('Enter username for Box access: ')
 ##    st.subheader('Bruce & MaryLou Mate')
-    st.subheader('Whale Telemetry Group Data Archive')
-#### TRAP here if not entered
+    st.subheader('Whale Telemetry Data Archive Online System')
+#### TRAP here if user not entered
     # if not usr:
-    slot1 = st.empty()    
+    # not using slots yet 
+    # slot1 = st.empty()    
 ## Start with Species list
     st.caption('(Leave any box empty to include ALL values)')
+    st.caption('')
+#=============================================================================
+## {widget name: (Title, default content}
+#     w_names = ['species_selected',
+#                'years_selected',
+#                'regions_selected',
+#                'areas_selected',
+#                'projects_selected']
 
+#     w_dict = {'species_selected':('Species', dl.select_box.species), 
+#                 'years_selected':('Years', df_proj["project_year"].drop_duplicates()),
+#                 'regions_selected':('Ocean Regions', df_proj["ocean_region"].drop_duplicates()),
+#                 'areas_selected':('Administrative Regions', df_proj["area"].drop_duplicates()),
+#                 'projects_selected':('Projects', df_proj["project"].drop_duplicates())}
+#     def_dict = {}
+# # default values lists
+#     spp_def = dl.select_box.species
+#     year_def = df_proj["project_year"].drop_duplicates()
+#     region_def = df_proj["ocean_region"].drop_duplicates()
+#     area_def = df_proj["area"].drop_duplicates()
+#     project_def = df_proj["project"].drop_duplicates()
+# # create selectboxes from default values?
+#     species_selected = st.multiselect('Species', spp_def)
+#     years_selected = st.multiselect('Years', year_def)
+#     regions_selected = st.multiselect('Ocean Regions', )
+#     areas_selected = st.multiselect('Administrative Regions', region_def)
+#     projects_selected = st.multiselect('Projects', project_def)
+
+## look for changes to widgets using dict
+    # local_vars = locals()
+    # for wn in w_names:
+    #   local_vars = locals()
+    #   local_vars.__setitem__(wn, w_dict.something)
+    #   if local_vars[-1] != 'dict of default lists'
+   
+     
+    # species_filter = (df_proj["species"].isin(species_selected))     # this is a df or not?
+         
+    # years_selected = st.multiselect('Years', df_proj["project_year"].loc[(species_filter)].drop_duplicates())
+         
+
+         
+    ## Get year list from filtered species 
+         # years_selected = st.multiselect('Years',df_species['project_year'].drop_duplicates())
+         # if len(years_selected) > 0:
+         #     df_years = df_species[(df_species['project_year'].isin(years_selected))]
+         # else:
+         #     df_years = df_species
+             
 # =============================================================================
-# # init empty select lists
-#     years_selected = []
-#     regions_selected = []
-#     areas_selected = []
-#     projects_selected = []
-# # init lists == All values
-#     spp_list = dl.select_box.species
-#     yrs_list = df_proj["project_year"].drop_duplicates()
-#     reg_list = df_proj["ocean_region"].drop_duplicates()
-#     area_list = df_proj["area"].drop_duplicates()
-#     proj_list = df_proj["project"].drop_duplicates()
-# 
-# ## 1)
+
 #     species_selected = st.multiselect('Species',spp_list) 
 #     with slot1.container():
-#         years_selected = st.multiselect('Years', yrs_list)
-#         regions_selected = st.multiselect('Ocean Regions',reg_list)
-#         areas_selected = st.multiselect('Administrative Regions',area_list)
-#         projects_selected = st.multiselect('Projects',proj_list) 
-#         # box_dict = {years_selected:('Years', yrs_list),
-#         #             regions_selected:('Ocean Regions',reg_list),
-#         #             areas_selected:('Administrative Regions',area_list),
-#         #             projects_selected:('Projects',proj_list)}
-# =============================================================================
+#         years_selected = st.multiselect('Years', df_proj["project_year"].drop_duplicates())
+#         regions_selected = st.multiselect('Ocean Regions', df_proj["ocean_region"].drop_duplicates())
+#         areas_selected = st.multiselect('Administrative Regions', df_proj["area"].drop_duplicates())
+#         projects_selected = st.multiselect('Projects', df_proj["project"].drop_duplicates()) 
+## MS name: default content
+#   MS_dict = {years_selected:('Years', df_proj["project_year"].drop_duplicates()),
+#            regions_selected:('Ocean Regions',df_proj["ocean_region"].drop_duplicates()),
+#            areas_selected:('Administrative Regions',df_proj["area"].drop_duplicates()),
+#            projects_selected:('Projects',df_proj["project"].drop_duplicates())}
 
-## *************** ERROR unhashable type 'list'
-# =============================================================================
-#         for sel, params in box_dict.items():
-#             sel = selector(params) 
-# =============================================================================
 
 # =============================================================================
 #     if species_selected: # save and propogate to other selectors   Else: keep current selectors
-#         slot1.empty()   # clear selectors
+# 
 #         species_filter = (df_proj["species"].isin(species_selected))    
 #         years_selected = st.multiselect('Years', df_proj["project_year"].loc[(species_filter)].drop_duplicates())
-#         with slot1.container():
-#             regions_selected = st.multiselect('Ocean Regions', df_proj["ocean_region"].loc[(species_filter)].drop_duplicates() )
-#             areas_selected = st.multiselect('Administrative Regions',df_proj["area"].loc[(species_filter)].drop_duplicates())
-#             projects_selected = st.multiselect('Projects',df_proj["project"].loc[(species_filter)].drop_duplicates()) 
+#         regions_selected = st.multiselect('Ocean Regions', df_proj["ocean_region"].loc[(species_filter)].drop_duplicates() )
+#         areas_selected = st.multiselect('Administrative Regions',df_proj["area"].loc[(species_filter)].drop_duplicates())
+#         projects_selected = st.multiselect('Projects',df_proj["project"].loc[(species_filter)].drop_duplicates()) 
+#    
 #     else:
 #             if years_selected:
-#                slot1.empty()  
+#                
 #                year_filter = (df_proj["project_year"].isin(years_selected))
 #                regions_selected = st.multiselect('Ocean Regions', \
 #                                 df_proj["ocean_region"].loc[ \
 #                                 (species_filter)].drop_duplicates())
-#                with slot1.container():
-#                     areas_selected = st.multiselect('Administrative Regions', \
+#               
+#                areas_selected = st.multiselect('Administrative Regions', \
 #                                     df_proj["area"].loc[ \
 #                                     (species_filter)].drop_duplicates())
-#                     projects_selected = st.multiselect('Projects', \
+#                projects_selected = st.multiselect('Projects', \
 #                                     df_proj["project"].loc[ \
 #                                     (species_filter)].drop_duplicates()) 
 # 
@@ -136,14 +170,15 @@ with st.sidebar:
 #     areas_selected = st.multiselect('Administrative Regions',areas)
 #     if areas_selected:
 #         project_filter = (df_proj["area"].isin(areas_selected)) 
-#     projects_selected = st.multiselect('Projects',projects)  
-#         
+#     projects_selected = st.multiselect('Projects',projects) 
+ 
+#         Got lots of ‘elifs’ for your if statement? Use a dictionary!
 # =============================================================================
  ## Default all species
     species_selected = st.multiselect('Species',dl.select_box.species) 
 ## SAVE this side bar***************************************************************************
     if species_selected:
-        species = df_proj['species'].drop_duplicates()
+##unused        species = df_proj['species'].drop_duplicates()
         # df_species = df_proj[(df_proj['species'].isin(species_selected))]
         df_species = df_proj[(df_proj['species'].isin(species_selected))]
     else: # copy the whole dataframe 
@@ -181,14 +216,14 @@ with st.sidebar:
 col1, col2, col3, col4 = st.columns(4)
 
 ## --------------Select choice for next level---------------------
-explore = col1.radio('Select one to explore:', ['Animals', 'Encounters', 'Tags'])
+explore = col1.radio('Choose a category:', ['Animals', 'Encounters', 'Tags'])
 
 # =============================================================================
 # #### LOCATIONS ###### loc_types
 # =============================================================================
 if explore == 'Encounters':
   ## Load full animal list 
-    df_animals = dl.load_data(dl.animal_data.animal_meta) #.set_index('animal_id')
+    df_animals = dl.load_data(dl.animal_data.animal_meta).set_index('animal_id')
   ## Primary proj/species filter 
     spp_filt = (df_animals['species'].isin(species_selected))
     prj_filt = (df_animals['project_id'].isin(projects_selected))
@@ -214,6 +249,11 @@ if explore == 'Encounters':
         if len(location_sel) == 1:
             if location_sel[0] == 'Argos':
                 df_loc = dl.load_locs(dl.encounter.enc_argos).set_index('feature_id')
+                
+#### NOT working ???? ################################                
+               # df_loc[(df_loc['hide'] == 'FALSE')]
+#####################################################    
+            
             elif location_sel[0] == 'FastLoc':
                 df_loc = dl.load_locs(dl.encounter.enc_fastloc).set_index('feature_id')
             elif location_sel[0] == 'Deployment':
@@ -235,12 +275,14 @@ if explore == 'Encounters':
     ## Secondary filter --- animals, feature-type
             if anim_select: 
                 loc_filter = (df_loc['animal_name'].isin(anim_select)) & \
-                             (df_loc['feature_type'].isin([dl.select_box.loc_types[k] \
-                                                          for k in location_sel])) 
+                             (df_loc['feature_type'].isin( \
+                                    [dl.select_box.loc_types[k] for k in location_sel])) & \
+                                 (df_loc['hide'] == 'FALSE')
             else:
                 loc_filter = (df_loc['animal_name'].isin(anim_list)) & \
                              (df_loc['feature_type'].isin([dl.select_box.loc_types[k] \
-                                                           for k in location_sel])) #& \
+                                                           for k in location_sel])) & \
+                             (df_loc['hide'] == 'FALSE')
 ### End IF location_sel
 
   ## Display switcher
@@ -262,7 +304,7 @@ if explore == 'Encounters':
                 #    pass
 
 
-### Display Map   ## TRY: importing big-ass (wtg filtered) line shapefile and filtering that?
+### Display Map   
             elif display == 'Show Map':
                 loc_filter = loc_filter & (df_loc['latitude'].notna()) 
                 df = df_loc[(loc_filter)]
@@ -310,7 +352,7 @@ elif explore == 'Animals':
     ## WORKING ## ------------------------------------------------------------    
     df_animals = dl.load_data(dl.animal_data.animal_meta).set_index('animal_id')
     ## Choose data Category
-    category = col2.radio('Choose one:', ['Animal Metadata', 'Sample Biomarkers'])
+    category = col2.radio('Choose a dataset:', ['Animal Metadata', 'Sample Biomarkers'])
     if category == 'Animal Metadata':
         spp_filt = (df_animals['species'].isin(species_selected))
         prj_filt = (df_animals['project_id'].isin(projects_selected))
@@ -345,7 +387,7 @@ elif explore == 'Animals':
 # 
 # =============================================================================
     ## WORKING ## ------------------------------------------------------------     
-        biomarkers_sel = col3.radio('Select Biomarker types', dl.select_box.bio_types)
+        biomarkers_sel = col3.radio('Choose a biomarker type', dl.select_box.bio_types)
         if biomarkers_sel == dl.select_box.bio_types[2]:
             df_bio = dl.load_data(dl.animal_data.animal_genes) 
         if biomarkers_sel == dl.select_box.bio_types[1]:
@@ -375,7 +417,7 @@ elif explore == 'Tags':         # show tags with metadata by default
     slot1 = st.empty()
     df_devices = dl.load_data(dl.tag_data.tag_meta) 
 ## Choose data Category
-    datatype = col2.radio('Select: ', ['Basic Metadata','Extended Metadata','Measured Data'])
+    datatype = col2.radio('Select one: ', ['Basic Metadata','Extended Metadata','Measured Data'])
 
     if datatype == 'Basic Metadata': 
         tagtype = col3.multiselect('Select Tag Type(s):',dl.select_box.tag_types.keys()) 
@@ -413,7 +455,7 @@ elif explore == 'Tags':         # show tags with metadata by default
     elif datatype == 'Measured Data':
        # hide devices list
        slot1.empty()
-       tagtype = col3.radio('Choose Tag type:',dl.select_box.tag_types.keys())
+       tagtype = col3.radio('Select one tag type:',dl.select_box.tag_types.keys())
        #tag_list = df_devices['tag_name']
         # Filters for tag_list
        prj_filter = (df_devices['project_id'].isin(projects_selected))
@@ -437,7 +479,7 @@ elif explore == 'Tags':         # show tags with metadata by default
                 tag_list = df_devices['tag_name'][(type_filter)] 
 
         ## Report types
-            report = col4.radio('Choose Report type:', ['Behavior Histogram', 'Tag Utility'])
+            report = col4.radio('Select one report type:', ['Behavior Histogram', 'Tag Utility'])
             if report == 'Behavior Histogram':
                  if 'Sperm' in species_selected:
                       df_tag_data = dl.load_data(dl.tag_data.wc_hist_tat30) 
